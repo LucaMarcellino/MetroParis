@@ -34,7 +34,7 @@ public class Model {
 		Graphs.addAllVertices(this.graph, this.fermate);
 		
 		
-		//Creazione archi--metodo 1 coppie vertici 
+		//Creazione archi--metodo 1 coppie vertici da evitare di usare troppo lungo per dati maggiori di un centinaio
 		/*
 		for(Fermata fp: this.fermate) {
 			for( Fermata fa:this.fermate) {
