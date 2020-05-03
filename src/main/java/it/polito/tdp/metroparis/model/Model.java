@@ -56,6 +56,7 @@ public class Model {
 		//Creazione archi-- metodo 3 chiedo elenco archi al database
 		List<Coppie> coppie = dao.coppieFermate(fermateIdMap);
 		for(Coppie c: coppie) {
+			
 			graph.addEdge(c.getFp(), c.getFa());
 		}
 		
