@@ -1,13 +1,24 @@
 package it.polito.tdp.metroparis.model;
 
+import java.util.ArrayList;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.jgrapht.Graph;
+import org.jgrapht.GraphPath;
 import org.jgrapht.Graphs;
+import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
+import org.jgrapht.event.ConnectedComponentTraversalEvent;
+import org.jgrapht.event.EdgeTraversalEvent;
+import org.jgrapht.event.TraversalListener;
+import org.jgrapht.event.TraversalListenerAdapter;
+import org.jgrapht.event.VertexTraversalEvent;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleDirectedGraph;
+import org.jgrapht.traverse.BreadthFirstIterator;
+import org.jgrapht.traverse.DepthFirstIterator;
 
 import it.polito.tdp.metroparis.db.MetroDAO;
 
@@ -63,8 +74,123 @@ public class Model {
 		System.out.println(graph.vertexSet().size()+"    "+graph.edgeSet().size());
 	}
 	
+	
+	public List<Fermata> visitaAmpiezza(Fermata source) {
+		
+		List<Fermata> visita = new ArrayList<>();
+		
+		BreadthFirstIterator<Fermata,DefaultEdge> bfv = new BreadthFirstIterator<>(graph,source);
+		while(bfv.hasNext()) {
+			visita.add(bfv.next());
+			
+		}
+		
+		return visita;
+
+		
+	}
+	
+	public List<Fermata> visitaProfondita(Fermata source) {
+		
+		List<Fermata> visita = new ArrayList<>();
+		
+		DepthFirstIterator<Fermata,DefaultEdge> dfv = new DepthFirstIterator<>(graph,source);
+		while(dfv.hasNext()) {
+			visita.add(dfv.next());
+			
+		}
+		
+		return visita;
+
+		
+	}
+	
+	public Map<Fermata,Fermata>  alberoVisita(Fermata source) {
+		 final Map<Fermata,Fermata> albero = new HashMap<>();
+		 albero.put(source, null);
+		 
+		 BreadthFirstIterator<Fermata,DefaultEdge> bfv = new BreadthFirstIterator<>(graph,source);
+		
+		
+			
+		
+		bfv.addTraversalListener( new TraversalListener<Fermata, DefaultEdge>() {
+			
+			@Override
+			public void vertexTraversed(VertexTraversalEvent<Fermata> e) {
+				
+				
+			}
+			
+			@Override
+			public void vertexFinished(VertexTraversalEvent<Fermata> e) {
+				
+				
+			}
+			
+			@Override
+			public void edgeTraversed(EdgeTraversalEvent<DefaultEdge> e) {
+				DefaultEdge edge= new DefaultEdge();
+				Fermata a = graph.getEdgeSource(edge);
+				Fermata b=graph.getEdgeTarget(edge);
+				if(albero.containsKey(a)) {
+					albero.put(b,a);
+				}
+				else{
+					albero.put(a, b);
+				}
+				
+			}
+			
+			@Override
+			public void connectedComponentStarted(ConnectedComponentTraversalEvent e) {
+				
+				
+			}
+			
+			@Override
+			public void connectedComponentFinished(ConnectedComponentTraversalEvent e) {
+				
+				
+			}
+		});
+		
+		
+		while(bfv.hasNext()) {
+			bfv.next();
+			}
+		
+		
+		
+		
+		
+		return albero;
+		
+	
+
+	}
+	
+	public List<Fermata> camminiMinini(Fermata partenza,Fermata arrivo) {
+		 DijkstraShortestPath<Fermata , DefaultEdge> dij= new DijkstraShortestPath<Fermata, DefaultEdge>(graph);
+		 GraphPath<Fermata,DefaultEdge> camminiMinim= dij.getPath(partenza, arrivo);
+		 return camminiMinim.getVertexList();
+	}
+	
+	
 	public static void main(String args[]) {
 		Model m=new Model();
+		List<Fermata> visita= m.visitaAmpiezza(m.fermate.get(0));
+		//System.out.println(visita);
+		List<Fermata> visita2= m.visitaProfondita(m.fermate.get(0));
+		//System.out.println(visita2);
+		
+		Map<Fermata,Fermata> albero= m.alberoVisita(m.fermate.get(0));
+		for(Fermata f : albero.keySet()) {
+			//System.out.format("%s <- %s\n", f,albero.get(f) );
+			
+			List<Fermata> cammino = m.camminiMinini(m.fermate.get(0), m.fermate.get(1));
+			System.out.println(cammino);
+		}
 	}
 
 }
